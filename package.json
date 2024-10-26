@@ -9,8 +9,8 @@
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc",
-    "build:graphql": "tsc -p tsconfig.server.json",
-    "start:graphql": "node dist/index.js"
+    "build:graphql": "rm -rf dist && tsc -p tsconfig.server.json",
+    "start:graphql": "node dist/graphql/index.js"
   },
   "dependencies": {
     "@apollo/server": "^4.11.0",
