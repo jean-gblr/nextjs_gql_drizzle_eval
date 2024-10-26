@@ -2,13 +2,15 @@
   "name": "next",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc",
-    "graphql-server": "ts-node src/server/graphql/index.ts"
+    "build:graphql": "tsc -p tsconfig.server.json",
+    "start:graphql": "node dist/index.js"
   },
   "dependencies": {
     "@apollo/server": "^4.11.0",

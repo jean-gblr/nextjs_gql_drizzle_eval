@@ -6,12 +6,14 @@ import { startStandaloneServer } from "@apollo/server/standalone";
 // your data.
 
 const typeDefs = `#graphql
+  # Could implement a scalar Date type if time permits
+  # scalar Date
   # Comments in GraphQL strings (such as this one) start with the hash (#) symbol.
 
   # This "Status" type defines the status of a task.
-  type Status {
-    PENDING,
-    IN_PROGRESS,
+  enum Status {
+    PENDING
+    IN_PROGRESS
     DONE
   }
 
@@ -21,8 +23,8 @@ const typeDefs = `#graphql
     title: String
     description: String
     status: Status
-    createdAt: Date
-    updatedAt: Date
+    createdAt: String
+    updatedAt: String
   }
 
   # The "Query" type is special: it lists all of the available queries that
@@ -59,3 +61,17 @@ const tasks = [
     updatedAt: new Date(),
   },
 ];
+
+const resolvers = {
+  Query: {
+    tasks: () => tasks,
+  },
+}
+
+const server = new ApolloServer({ typeDefs, resolvers });
+
+const { url } = await startStandaloneServer(server, {
+  listen: { port: 4000 },
+});
+
+console.log(`🚀 Server ready at ${url}`);
