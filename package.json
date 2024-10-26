@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "type-check": "tsc",
+    "graphql-server": "ts-node src/server/graphql/index.ts"
   },
   "dependencies": {
     "@apollo/server": "^4.11.0",
@@ -17,7 +19,8 @@
     "next": "15.0.1",
     "pg": "^8.13.1",
     "react": "19.0.0-rc-69d4b800-20241021",
-    "react-dom": "19.0.0-rc-69d4b800-20241021"
+    "react-dom": "19.0.0-rc-69d4b800-20241021",
+    "ts-node": "^10.9.2"
   },
   "devDependencies": {
     "@types/node": "^20",
