@@ -1,10 +1,45 @@
 import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
-// import { resolvers } from "./resolvers.js";
 import { buildSchema } from "drizzle-graphql";
 import { db } from "../database/index.js";
+import { customResolvers } from "./resolvers.js";
+import {
+  GraphQLList,
+  GraphQLObjectType,
+  GraphQLSchema,
+  GraphQLString,
+} from "graphql";
 
-const { schema } = buildSchema(db);
+const { entities } = buildSchema(db);
+
+const schema = new GraphQLSchema({
+  query: new GraphQLObjectType({
+    name: "Query",
+    fields: {
+      tasks: entities.queries.tasks,
+      task: entities.queries.tasksSingle,
+      boards: {
+        type: new GraphQLList(
+          new GraphQLObjectType({
+            name: "Board",
+            fields: {
+              title: { type: GraphQLString },
+              tasks: { type: new GraphQLList(entities.types.TasksItem) },
+            },
+          })
+        ),
+        resolve: customResolvers.Query.boards,
+      },
+    },
+  }),
+  mutation: new GraphQLObjectType({
+    name: "Mutation",
+    fields: entities.mutations,
+  }),
+  // In case you need types inside your schema
+  types: [...Object.values(entities.types), ...Object.values(entities.inputs)],
+});
+
 const server = new ApolloServer({ schema });
 
 const { url } = await startStandaloneServer(server, {

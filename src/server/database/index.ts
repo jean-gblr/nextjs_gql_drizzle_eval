@@ -3,6 +3,7 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { eq } from "drizzle-orm";
 import pkg from "pg";
 import * as dbSchema from "./schema.js";
+import { generateFakeData } from "./fake.js";
 
 const { Pool } = pkg;
 const pool = new Pool({
@@ -12,23 +13,11 @@ const pool = new Pool({
 export const db = drizzle({ client: pool, schema: dbSchema });
 
 async function main() {
-  const task: dbSchema.NewTask = {
-    title: "Task 1",
-    description: "Description 1",
-    status: "PENDING",
-  };
+  const task: dbSchema.NewTask[] = generateFakeData();
   await db.insert(dbSchema.tasks).values(task);
   console.log("New task created!");
   const tasks = await db.select().from(dbSchema.tasks);
   console.log("Getting all tasks from the database: ", tasks);
-  /*
-  const users: {
-    id: number;
-    name: string;
-    age: number;
-    email: string;
-  }[]
-  */
   await db
     .update(dbSchema.tasks)
     .set({

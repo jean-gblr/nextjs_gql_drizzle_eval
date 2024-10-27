@@ -1,35 +1,30 @@
-// import { tasks, Task } from '../database/schema';
+export const customResolvers = {
+  Query: {
+    // Add your custom tasks resolver here
+    boards: async (_, __, { db }) => {
+      // Fetch all tasks from the database using Drizzle
+      const allTasks = await db.select().from("tasks");
 
-// export const resolvers = {
-//   Query: {
-//     tasks: async (_parent, _args, context) => {
-//       // Fetch tasks from the PostgreSQL database using Drizzle
-//       const results: Task[] = await context.db.select().from(tasks);
-//       return results;
-//     },
-//   },
-//   Mutation: {
-//     addTask: async (_parent, { title, description, status }, context) => {
-//       // Insert a new task into the PostgreSQL database
-//       const [newTask] = await context.db
-//         .insertInto(tasks)
-//         .values({ title, description, status })
-//         .returning('*');
-//       return newTask;
-//     },
-//     updateTask: async (_parent, { id, status }, context) => {
-//       // Update a task's status in the PostgreSQL database
-//       const [updatedTask] = await context.db
-//         .update(tasks)
-//         .set({ status })
-//         .where('id', '=', id)
-//         .returning('*');
-//       return updatedTask;
-//     },
-//     deleteTask: async (_parent, { id }, context) => {
-//       // Delete a task from the PostgreSQL database
-//       await context.db.deleteFrom(tasks).where('id', '=', id);
-//       return true;
-//     },
-//   },
-// };
+      // Group tasks by status
+      const groupedTasks = allTasks.reduce((acc, task) => {
+        // Find the existing group by status
+        let group = acc.find((g) => g.title === task.status);
+
+        // If no group exists for this status, create a new one
+        if (!group) {
+          group = {
+            title: task.status,
+            tasks: [],
+          };
+          acc.push(group);
+        }
+
+        // Add the task to the correct group
+        group.tasks.push(task);
+        return acc;
+      }, []);
+
+      return groupedTasks;
+    },
+  },
+};
