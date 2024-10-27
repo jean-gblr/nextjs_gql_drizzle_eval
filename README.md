@@ -43,3 +43,5 @@ The .env file should look like this:
 ```bash
 DATABASE_URL=postgres://postgres:mypassword@localhost:5432/postgres
 ```
+
+npx drizzle-kit push
