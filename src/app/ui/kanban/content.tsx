@@ -3,13 +3,13 @@
 "use client";
 import { Task } from "@/server/database/schema";
 import type { FC } from "react";
-import { useState } from "react";
-import { ReactSortable } from "react-sortablejs";
-import { AddAnotherTaskModal } from "./AddAnotherTaskModal";
-import { Button, Spinner } from "flowbite-react";
-import { gql, useQuery } from "@apollo/client";
 
-interface Board {
+import { AddAnotherTaskModal } from "./AddAnotherTaskModal";
+import { Spinner } from "flowbite-react";
+import { gql, useQuery } from "@apollo/client";
+import { EditTaskModal } from "./EditTaskModal";
+
+export interface Board {
   id: number;
   title: string;
   tasks: Task[];
@@ -46,7 +46,7 @@ const KanbanPageContent: FC = function () {
       <div className="inline-block min-w-full align-middle">
         <div className="mb-6 flex items-start justify-start space-x-4 px-4">
           {data.boards.map((board: Board) => (
-            <div key={board.title}>
+            <div key={board.id}>
               <div className="py-4 text-base font-semibold text-gray-900 dark:text-gray-300">
                 {board.title}
                 <AddAnotherTaskModal status={board.title} />
@@ -68,7 +68,7 @@ const KanbanPageContent: FC = function () {
                     })
                   }
                 > */}
-                {board.tasks.map((task) => (
+                {board.tasks.map((task: Task) => (
                   <div
                     key={task.id}
                     className="mb-4 w-[28rem] cursor-grab rounded-lg bg-white p-5 shadow dark:bg-gray-800"
@@ -77,7 +77,7 @@ const KanbanPageContent: FC = function () {
                       <div className="text-base font-semibold text-gray-900 dark:text-white">
                         {task.title}
                       </div>
-                      {/* <EditCardModal /> */}
+                      <EditTaskModal task={task} />
                     </div>
                     <div className="flex flex-col">
                       <div className="pb-4 text-sm font-normal text-gray-700 dark:text-gray-400">
@@ -100,13 +100,5 @@ const KanbanPageContent: FC = function () {
     </div>
   );
 };
-
-// function Result({ data }: { data }) {
-//   return (
-//     <div>
-//       <span className="text-gray-300">{JSON.stringify(data)}</span>
-//     </div>
-//   );
-// }
 
 export default KanbanPageContent;

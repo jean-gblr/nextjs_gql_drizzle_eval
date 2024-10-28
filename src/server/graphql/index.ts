@@ -13,7 +13,7 @@ import {
 
 const { entities } = buildSchema(db);
 
-const schema = new GraphQLSchema({
+export const schema = new GraphQLSchema({
   query: new GraphQLObjectType({
     name: "Query",
     fields: {

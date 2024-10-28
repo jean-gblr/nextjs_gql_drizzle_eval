@@ -12,7 +12,8 @@ import {
 } from "flowbite-react";
 import { FC, useState } from "react";
 import { HiPlus } from "react-icons/hi";
-import { tasksQuery } from "./content";
+import { Board, tasksQuery } from "./content";
+import { Task } from "@/server/database/schema";
 
 interface AddAnotherTaskModalProps {
   status?: string;
@@ -42,7 +43,7 @@ export const AddAnotherTaskModal: FC<AddAnotherTaskModalProps> = function ({
     ADD_TASK_MUTATION,
     {
       optimisticResponse: ({ values }) => ({
-        insertIntoTasks: values.map((task) => ({
+        insertIntoTasks: values.map((task: Task) => ({
           __typename: "Task",
           id: Math.random().toString(36).substring(7), // Temporary unique ID
           title: task.title,
@@ -54,7 +55,9 @@ export const AddAnotherTaskModal: FC<AddAnotherTaskModalProps> = function ({
       }),
       update: (cache, { data: { insertIntoTasks } }) => {
         // Read the existing boards from the cache
-        const existingData = cache.readQuery({ query: tasksQuery });
+        const existingData: { boards: Board[] } = cache.readQuery({
+          query: tasksQuery,
+        }) || { boards: [] };
 
         // Fallback to empty arrays if data is missing
         const existingBoards = existingData?.boards || [];
@@ -66,14 +69,11 @@ export const AddAnotherTaskModal: FC<AddAnotherTaskModalProps> = function ({
         const updatedTasks = [...existingTasks, ...insertIntoTasks];
 
         // Function to find the existing board's ID by status
-        const findBoardIdByStatus = (status) => {
+        const findBoardIdByStatus = (status: string) => {
           const board = existingBoards.find((board) => board.title === status);
-          console.log("Looking for board with status:", status);
           if (board) {
-            console.log("Board ID:", board.id);
             return board.id;
           } else {
-            console.log("No board found with status:", status);
             return "wrong";
           }
           // return board ? board.id : null; // Return null if no board with that status is found
@@ -87,8 +87,6 @@ export const AddAnotherTaskModal: FC<AddAnotherTaskModalProps> = function ({
             tasks: updatedTasks.filter((task) => task.status === status),
           })
         );
-
-        console.log("Updated boards:", updatedBoards);
 
         // Write the updated boards back to the cache
         cache.writeQuery({

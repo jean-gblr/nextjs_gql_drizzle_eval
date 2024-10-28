@@ -25,7 +25,37 @@ function makeClient() {
   // use the `ApolloClient` from "@apollo/experimental-nextjs-app-support"
   return new ApolloClient({
     // use the `InMemoryCache` from "@apollo/experimental-nextjs-app-support"
-    cache: new InMemoryCache(),
+    cache: new InMemoryCache({
+      typePolicies: {
+        Board: {
+          fields: {
+            tasks: {
+              merge(existing = [], incoming) {
+                // Merge the existing and incoming tasks by ID to avoid data loss
+                const mergedTasks = [...existing];
+
+                incoming.forEach((incomingTask) => {
+                  // Check if the task already exists in the merged list
+                  const existingTaskIndex = mergedTasks.findIndex(
+                    (task) => task.__ref === incomingTask.__ref
+                  );
+
+                  if (existingTaskIndex > -1) {
+                    // Update the existing task
+                    mergedTasks[existingTaskIndex] = incomingTask;
+                  } else {
+                    // Add the new task
+                    mergedTasks.push(incomingTask);
+                  }
+                });
+
+                return mergedTasks;
+              },
+            },
+          },
+        },
+      },
+    }),
     link: httpLink,
   });
 }
