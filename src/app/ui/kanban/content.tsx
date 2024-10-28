@@ -5,8 +5,11 @@ import { Task } from "@/server/database/schema";
 import type { FC } from "react";
 import { useState } from "react";
 import { ReactSortable } from "react-sortablejs";
+import { AddAnotherTaskModal } from "./AddAnotherTaskModal";
+import { Button } from "flowbite-react";
 
 interface Board {
+  id: number;
   title: string;
   tasks: Task[];
 }
@@ -24,6 +27,7 @@ const KanbanPageContent: FC<{ boards: Board[] }> = function ({ boards }) {
             <div key={board.title}>
               <div className="py-4 text-base font-semibold text-gray-900 dark:text-gray-300">
                 {board.title}
+                <AddAnotherTaskModal status={board.title} />
               </div>
               <div className="mb-6 space-y-4">
                 {/* <ReactSortable
@@ -35,40 +39,38 @@ const KanbanPageContent: FC<{ boards: Board[] }> = function ({ boards }) {
                     setList((list) => {
                       const newList = [...list];
                       const index = newList.findIndex(
-                        (item) => item.title === board.title
+                        (item) => item.id === board.id
                       );
                       newList[index].tasks = tasks;
                       return newList;
                     })
                   }
                 > */}
-                  {board.tasks.map((task) => (
-                    <div
-                      key={task.id}
-                      className="mb-4 w-[28rem] cursor-grab rounded-lg bg-white p-5 shadow dark:bg-gray-800"
-                    >
-                      <div className="flex items-center justify-between pb-4">
-                        <div className="text-base font-semibold text-gray-900 dark:text-white">
-                          {task.title}
-                        </div>
-                        {/* <EditCardModal /> */}
+                {board.tasks.map((task) => (
+                  <div
+                    key={task.id}
+                    className="mb-4 w-[28rem] cursor-grab rounded-lg bg-white p-5 shadow dark:bg-gray-800"
+                  >
+                    <div className="flex items-center justify-between pb-4">
+                      <div className="text-base font-semibold text-gray-900 dark:text-white">
+                        {task.title}
                       </div>
-                      <div className="flex flex-col">
-                        <div className="pb-4 text-sm font-normal text-gray-700 dark:text-gray-400">
-                          {task.description}
-                        </div>
-                        <div className="flex justify-between">
-                          <div className="flex items-center justify-start"></div>
-                          <div className="flex items-center justify-center rounded-lg bg-purple-100 px-3 text-sm font-medium text-purple-800 dark:bg-purple-200">
-                            {/* <HiClock className="mr-1 h-4 w-4" /> 7 days left */}
-                          </div>
-                        </div>
+                      {/* <EditCardModal /> */}
+                    </div>
+                    <div className="flex flex-col">
+                      <div className="pb-4 text-sm font-normal text-gray-700 dark:text-gray-400">
+                        {task.description}
+                      </div>
+                      <div className="flex justify-between">
+                        <div className="flex items-center justify-start"></div>
+                        <div className="flex items-center justify-center rounded-lg bg-purple-100 px-3 text-sm font-medium text-purple-800 dark:bg-purple-200"></div>
                       </div>
                     </div>
-                  ))}
+                  </div>
+                ))}
                 {/* </ReactSortable> */}
               </div>
-              {/* <AddAnotherCardModal /> */}
+              <AddAnotherTaskModal status={board.title} />
             </div>
           ))}
         </div>

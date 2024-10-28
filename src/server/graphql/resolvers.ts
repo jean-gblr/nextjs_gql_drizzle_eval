@@ -4,6 +4,7 @@ export const customResolvers = {
     boards: async (source, args, context, info) => {
       // Resolve all tasks from the database
       const allTasks = await context.db.query.tasks.findMany();
+      let i = 0;
       // Group tasks by status
       const groupedTasks = allTasks.reduce((acc, task) => {
         // Find the existing group by status
@@ -12,6 +13,7 @@ export const customResolvers = {
         // If no group exists for this status, create a new one
         if (!group) {
           group = {
+            id: i++,
             title: task.status,
             tasks: [],
           };
@@ -22,6 +24,12 @@ export const customResolvers = {
         group.tasks.push(task);
         return acc;
       }, []);
+
+      // Define the desired order of statuses
+      const statusOrder = ["Pending", "In Progress", "Completed"];
+      groupedTasks.sort(
+        (a, b) => statusOrder.indexOf(a.title) - statusOrder.indexOf(b.title)
+      );
 
       return groupedTasks;
     },

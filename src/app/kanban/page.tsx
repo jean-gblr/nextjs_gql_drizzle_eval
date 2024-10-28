@@ -4,10 +4,12 @@ import React from "react";
 import { useQuery } from "@apollo/client";
 import { gql } from "@apollo/client";
 import KanbanPageContent from "../ui/kanban/content";
+import { Spinner } from "flowbite-react";
 
 const tasksQuery = gql`
   query {
     boards {
+      id
       title
       tasks {
         id
@@ -36,9 +38,14 @@ export default function Page() {
       </h1>
       <p className="text-lg font-normal text-gray-500 lg:text-xl dark:text-gray-400">
         Visualise your tasks in a Kanban board. You can drag and drop tasks
-        between columns to update their status.
+        between columns to update their status. (Drag and drop functionality is
+        not yet implemented, it will be a bonus if time permits)
       </p>
-      {loading ? <p>Loading ...</p> : <KanbanPageContent boards={data.boards} />}
+      {loading ? (
+        <Spinner aria-label="Loading tasks" />
+      ) : (
+        <KanbanPageContent boards={data.boards} />
+      )}
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { buildSchema } from "drizzle-graphql";
 import { db } from "../database/index.js";
 import { customResolvers } from "./resolvers.js";
 import {
+  GraphQLInt,
   GraphQLList,
   GraphQLObjectType,
   GraphQLSchema,
@@ -23,6 +24,7 @@ const schema = new GraphQLSchema({
           new GraphQLObjectType({
             name: "Board",
             fields: {
+              id: { type: GraphQLInt },
               title: { type: GraphQLString },
               tasks: { type: new GraphQLList(entities.types.TasksItem) },
             },
