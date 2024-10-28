@@ -1,10 +1,9 @@
 export const customResolvers = {
   Query: {
     // Add your custom tasks resolver here
-    boards: async (_, __, { db }) => {
-      // Fetch all tasks from the database using Drizzle
-      const allTasks = await db.select().from("tasks");
-
+    boards: async (source, args, context, info) => {
+      // Resolve all tasks from the database
+      const allTasks = await context.db.query.tasks.findMany();
       // Group tasks by status
       const groupedTasks = allTasks.reduce((acc, task) => {
         // Find the existing group by status

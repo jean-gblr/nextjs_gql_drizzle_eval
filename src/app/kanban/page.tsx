@@ -7,13 +7,16 @@ import KanbanPageContent from "../ui/kanban/content";
 
 const tasksQuery = gql`
   query {
-    tasks {
-      id
+    boards {
       title
-      description
-      status
-      createdAt
-      updatedAt
+      tasks {
+        id
+        title
+        description
+        status
+        createdAt
+        updatedAt
+      }
     }
   }
 `;
@@ -35,7 +38,7 @@ export default function Page() {
         Visualise your tasks in a Kanban board. You can drag and drop tasks
         between columns to update their status.
       </p>
-      {loading ? <p>Loading ...</p> : <KanbanPageContent tasks={data.tasks} />}
+      {loading ? <p>Loading ...</p> : <KanbanPageContent boards={data.boards} />}
     </div>
   );
 }
