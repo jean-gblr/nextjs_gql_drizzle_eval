@@ -31,58 +31,12 @@ export const EditTaskModal: FC<Task> = function ({ task }) {
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description);
   const [selectedStatus, setSelectedStatus] = useState(task.status);
-  const [updateTask, { data, loading, error }] =
-    useMutation(UPDATE_TASK_MUTATION);
-  // const [updateTask, { data, loading, error }] = useMutation(
-  //   UPDATE_TASK_MUTATION,
-  //   {
-  //     optimisticResponse: {
-  //       updateTasks: {
-  //         __typename: "TasksItem",
-  //         id: task.id,
-  //         title: title,
-  //         description: description,
-  //         status: selectedStatus,
-  //         createdAt: task.createdAt,
-  //         updatedAt: new Date().toISOString(),
-  //       },
-  //     },
-  //   update: (cache, { data: { updateTasks } }) => {
-  //     console.log("updateTasks", updateTasks);
-  //     // Read the existing data from the cache
-  //     const existingData: { boards: Board[] } = cache.readQuery({
-  //       query: tasksQuery,
-  //     }) || { boards: [] };
-  //     console.log("existingData", existingData);
-
-  //     // Find the original board's task and remove the task that has the same id as the updated task
-  //     const updatedBoards = existingData.boards.map((board) => {
-  //       return {
-  //         ...board,
-  //         tasks: board.tasks.filter((t) => t.id !== updateTasks.id),
-  //       };
-  //     });
-
-  //     // Find the target board by matching the updated task's status and add the updated task to the board
-  //     const targetBoard = updatedBoards.find(
-  //       (board) => board.title === selectedStatus
-  //     );
-  //     if (!targetBoard) return;
-  //     targetBoard.tasks.push(updateTasks);
-  //     console.log("targetBoard", targetBoard);
-
-  //     console.log("updatedBoards", updatedBoards);
-
-  //     // Write the updated data back to the cache
-  //     cache.writeQuery({
-  //       query: tasksQuery,
-  //       data: {
-  //         boards: updatedBoards,
-  //       },
-  //     });
-  //   },
-  // }
-  // );
+  const [updateTask, { data, loading, error }] = useMutation(
+    UPDATE_TASK_MUTATION,
+    {
+      refetchQueries: [{ query: tasksQuery }],
+    }
+  );
 
   const handleSubmit = async () => {
     try {
