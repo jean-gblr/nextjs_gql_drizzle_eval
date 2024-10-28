@@ -9,7 +9,7 @@ export function generateFakeData(): dbSchema.NewTask[] {
   ];
   const fakeTasks: dbSchema.NewTask[] = [];
 
-  for (let i = 0; i < 50; i++) {
+  for (let i = 0; i < 10; i++) {
     const task: dbSchema.NewTask = {
       title: faker.lorem.words(5), // Random sentence with 5 words
       description: faker.lorem.paragraph(3), // Random paragraph with 3 sentences

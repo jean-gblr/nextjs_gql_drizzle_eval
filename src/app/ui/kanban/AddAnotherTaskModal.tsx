@@ -1,6 +1,7 @@
 "use client";
 
 import { gql, useMutation } from "@apollo/client";
+import { desc } from "drizzle-orm";
 import {
   Modal,
   Label,
@@ -11,6 +12,7 @@ import {
 } from "flowbite-react";
 import { FC, useState } from "react";
 import { HiPlus } from "react-icons/hi";
+import { tasksQuery } from "./content";
 
 interface AddAnotherTaskModalProps {
   status?: string;
@@ -36,8 +38,68 @@ export const AddAnotherTaskModal: FC<AddAnotherTaskModalProps> = function ({
   const [taskName, setTaskName] = useState("");
   const [description, setDescription] = useState("");
   const [isOpen, setOpen] = useState(false);
-  const [insertIntoTasks, { data, loading, error }] =
-    useMutation(ADD_TASK_MUTATION);
+  const [insertIntoTasks, { data, loading, error }] = useMutation(
+    ADD_TASK_MUTATION,
+    {
+      optimisticResponse: ({ values }) => ({
+        insertIntoTasks: values.map((task) => ({
+          __typename: "Task",
+          id: Math.random().toString(36).substring(7), // Temporary unique ID
+          title: task.title,
+          description: task.description,
+          status: task.status,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        })),
+      }),
+      update: (cache, { data: { insertIntoTasks } }) => {
+        // Read the existing boards from the cache
+        const existingData = cache.readQuery({ query: tasksQuery });
+
+        // Fallback to empty arrays if data is missing
+        const existingBoards = existingData?.boards || [];
+
+        // Flatten the existing boards to get a single array of tasks
+        const existingTasks = existingBoards.flatMap((board) => board.tasks);
+
+        // Merge existing tasks with the newly inserted ones
+        const updatedTasks = [...existingTasks, ...insertIntoTasks];
+
+        // Function to find the existing board's ID by status
+        const findBoardIdByStatus = (status) => {
+          const board = existingBoards.find((board) => board.title === status);
+          console.log("Looking for board with status:", status);
+          if (board) {
+            console.log("Board ID:", board.id);
+            return board.id;
+          } else {
+            console.log("No board found with status:", status);
+            return "wrong";
+          }
+          // return board ? board.id : null; // Return null if no board with that status is found
+        };
+
+        // Group tasks by their status to create the updated boards
+        const updatedBoards = ["Pending", "In Progress", "Completed"].map(
+          (status) => ({
+            id: findBoardIdByStatus(status),
+            title: status,
+            tasks: updatedTasks.filter((task) => task.status === status),
+          })
+        );
+
+        console.log("Updated boards:", updatedBoards);
+
+        // Write the updated boards back to the cache
+        cache.writeQuery({
+          query: tasksQuery,
+          data: {
+            boards: updatedBoards,
+          },
+        });
+      },
+    }
+  );
 
   const handleAddTask = async () => {
     try {
@@ -62,6 +124,8 @@ export const AddAnotherTaskModal: FC<AddAnotherTaskModalProps> = function ({
       console.error("Error adding task:", e);
     }
   };
+
+  const isAddButtonDisabled = !taskName || !description;
 
   if (loading) return "Submitting...";
   if (error) return `Submission error! ${error.message}`;
@@ -140,7 +204,11 @@ export const AddAnotherTaskModal: FC<AddAnotherTaskModalProps> = function ({
         </Modal.Body>
         <Modal.Footer>
           <div className="flex items-center gap-x-3">
-            <Button color="blue" onClick={handleAddTask}>
+            <Button
+              color="blue"
+              onClick={handleAddTask}
+              disabled={isAddButtonDisabled}
+            >
               <div className="flex items-center gap-x-2">
                 <HiPlus className="text-lg" />
                 Add card

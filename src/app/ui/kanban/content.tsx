@@ -6,7 +6,8 @@ import type { FC } from "react";
 import { useState } from "react";
 import { ReactSortable } from "react-sortablejs";
 import { AddAnotherTaskModal } from "./AddAnotherTaskModal";
-import { Button } from "flowbite-react";
+import { Button, Spinner } from "flowbite-react";
+import { gql, useQuery } from "@apollo/client";
 
 interface Board {
   id: number;
@@ -14,8 +15,29 @@ interface Board {
   tasks: Task[];
 }
 
-const KanbanPageContent: FC<{ boards: Board[] }> = function ({ boards }) {
-  const [list, setList] = useState<Board[]>(boards);
+export const tasksQuery = gql`
+  query {
+    boards {
+      id
+      title
+      tasks {
+        id
+        title
+        description
+        status
+        createdAt
+        updatedAt
+      }
+    }
+  }
+`;
+
+const KanbanPageContent: FC = function () {
+  const { loading, error, data } = useQuery(tasksQuery, {
+    fetchPolicy: "cache-and-network",
+  });
+
+  if (loading) return <Spinner aria-label="Loading tasks" />;
 
   return (
     // <Result data={list} />
@@ -23,7 +45,7 @@ const KanbanPageContent: FC<{ boards: Board[] }> = function ({ boards }) {
     <div className="overflow-x-auto">
       <div className="inline-block min-w-full align-middle">
         <div className="mb-6 flex items-start justify-start space-x-4 px-4">
-          {list.map((board) => (
+          {data.boards.map((board: Board) => (
             <div key={board.title}>
               <div className="py-4 text-base font-semibold text-gray-900 dark:text-gray-300">
                 {board.title}
