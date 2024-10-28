@@ -2,12 +2,14 @@
 
 "use client";
 import { Task } from "@/server/database/schema";
-import type { FC } from "react";
+import { type FC } from "react";
 
 import { AddAnotherTaskModal } from "./AddAnotherTaskModal";
 import { Spinner } from "flowbite-react";
-import { gql, useQuery } from "@apollo/client";
+import { useQuery } from "@apollo/client";
 import { EditTaskModal } from "./EditTaskModal";
+import { DeleteModal } from "./DeleteModal";
+import { TASKS_QUERY } from "@/app/data/queries";
 
 export interface Board {
   id: number;
@@ -15,32 +17,14 @@ export interface Board {
   tasks: Task[];
 }
 
-export const tasksQuery = gql`
-  query {
-    boards {
-      id
-      title
-      tasks {
-        id
-        title
-        description
-        status
-        createdAt
-        updatedAt
-      }
-    }
-  }
-`;
-
 const KanbanPageContent: FC = function () {
-  const { loading, error, data } = useQuery(tasksQuery, {
+  const { loading, data } = useQuery(TASKS_QUERY, {
     fetchPolicy: "cache-and-network",
   });
 
   if (loading) return <Spinner aria-label="Loading tasks" />;
 
   return (
-    // <Result data={list} />
     // map tasks to columns using the status field
     <div className="overflow-x-auto">
       <div className="inline-block min-w-full align-middle">
@@ -77,7 +61,10 @@ const KanbanPageContent: FC = function () {
                       <div className="text-base font-semibold text-gray-900 dark:text-white">
                         {task.title}
                       </div>
-                      <EditTaskModal task={task} />
+                      <div>
+                        <DeleteModal task={task} />
+                        <EditTaskModal task={task} />
+                      </div>
                     </div>
                     <div className="flex flex-col">
                       <div className="pb-4 text-sm font-normal text-gray-700 dark:text-gray-400">

@@ -1,36 +1,16 @@
 "use client";
 
-import { gql, useMutation } from "@apollo/client";
-import { desc } from "drizzle-orm";
-import {
-  Modal,
-  Label,
-  TextInput,
-  Textarea,
-  Button,
-  Badge,
-} from "flowbite-react";
+import { useMutation } from "@apollo/client";
+import { Modal, Label, TextInput, Textarea, Button } from "flowbite-react";
 import { FC, useState } from "react";
 import { HiPlus } from "react-icons/hi";
-import { Board, tasksQuery } from "./content";
+import { Board } from "./content";
 import { Task } from "@/server/database/schema";
+import { ADD_TASK_MUTATION, TASKS_QUERY } from "@/app/data/queries";
 
 interface AddAnotherTaskModalProps {
   status?: string;
 }
-
-const ADD_TASK_MUTATION = gql`
-  mutation AddTask($values: [TasksInsertInput!]!) {
-    insertIntoTasks(values: $values) {
-      id
-      title
-      description
-      status
-      createdAt
-      updatedAt
-    }
-  }
-`;
 
 export const AddAnotherTaskModal: FC<AddAnotherTaskModalProps> = function ({
   status = "Pending",
@@ -39,65 +19,62 @@ export const AddAnotherTaskModal: FC<AddAnotherTaskModalProps> = function ({
   const [taskName, setTaskName] = useState("");
   const [description, setDescription] = useState("");
   const [isOpen, setOpen] = useState(false);
-  const [insertIntoTasks, { data, loading, error }] = useMutation(
-    ADD_TASK_MUTATION,
-    {
-      optimisticResponse: ({ values }) => ({
-        insertIntoTasks: values.map((task: Task) => ({
-          __typename: "Task",
-          id: Math.random().toString(36).substring(7), // Temporary unique ID
-          title: task.title,
-          description: task.description,
-          status: task.status,
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-        })),
-      }),
-      update: (cache, { data: { insertIntoTasks } }) => {
-        // Read the existing boards from the cache
-        const existingData: { boards: Board[] } = cache.readQuery({
-          query: tasksQuery,
-        }) || { boards: [] };
+  const [insertIntoTasks, { loading, error }] = useMutation(ADD_TASK_MUTATION, {
+    optimisticResponse: ({ values }) => ({
+      insertIntoTasks: values.map((task: Task) => ({
+        __typename: "Task",
+        id: Math.random().toString(36).substring(7), // Temporary unique ID
+        title: task.title,
+        description: task.description,
+        status: task.status,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      })),
+    }),
+    update: (cache, { data: { insertIntoTasks } }) => {
+      // Read the existing boards from the cache
+      const existingData: { boards: Board[] } = cache.readQuery({
+        query: TASKS_QUERY,
+      }) || { boards: [] };
 
-        // Fallback to empty arrays if data is missing
-        const existingBoards = existingData?.boards || [];
+      // Fallback to empty arrays if data is missing
+      const existingBoards = existingData?.boards || [];
 
-        // Flatten the existing boards to get a single array of tasks
-        const existingTasks = existingBoards.flatMap((board) => board.tasks);
+      // Flatten the existing boards to get a single array of tasks
+      const existingTasks = existingBoards.flatMap((board) => board.tasks);
 
-        // Merge existing tasks with the newly inserted ones
-        const updatedTasks = [...existingTasks, ...insertIntoTasks];
+      // Merge existing tasks with the newly inserted ones
+      const updatedTasks = [...existingTasks, ...insertIntoTasks];
 
-        // Function to find the existing board's ID by status
-        const findBoardIdByStatus = (status: string) => {
-          const board = existingBoards.find((board) => board.title === status);
-          if (board) {
-            return board.id;
-          } else {
-            return "wrong";
-          }
-          // return board ? board.id : null; // Return null if no board with that status is found
-        };
+      // Function to find the existing board's ID by status
+      const findBoardIdByStatus = (status: string) => {
+        const board = existingBoards.find((board) => board.title === status);
+        if (board) {
+          return board.id;
+        } else {
+          return "wrong";
+        }
+        // return board ? board.id : null; // Return null if no board with that status is found
+      };
 
-        // Group tasks by their status to create the updated boards
-        const updatedBoards = ["Pending", "In Progress", "Completed"].map(
-          (status) => ({
-            id: findBoardIdByStatus(status),
-            title: status,
-            tasks: updatedTasks.filter((task) => task.status === status),
-          })
-        );
+      // Group tasks by their status to create the updated boards
+      const updatedBoards = ["Pending", "In Progress", "Completed"].map(
+        (status) => ({
+          id: findBoardIdByStatus(status),
+          title: status,
+          tasks: updatedTasks.filter((task) => task.status === status),
+        })
+      );
 
-        // Write the updated boards back to the cache
-        cache.writeQuery({
-          query: tasksQuery,
-          data: {
-            boards: updatedBoards,
-          },
-        });
-      },
-    }
-  );
+      // Write the updated boards back to the cache
+      cache.writeQuery({
+        query: TASKS_QUERY,
+        data: {
+          boards: updatedBoards,
+        },
+      });
+    },
+  });
 
   const handleAddTask = async () => {
     try {
@@ -116,7 +93,7 @@ export const AddAnotherTaskModal: FC<AddAnotherTaskModalProps> = function ({
       // Reset form and close modal after successful addition
       setTaskName("");
       setDescription("");
-      setSelectedStatus("Pending");
+      setSelectedStatus(status);
       setOpen(false);
     } catch (e) {
       console.error("Error adding task:", e);

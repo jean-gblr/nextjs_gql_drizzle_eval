@@ -34,7 +34,7 @@ function makeClient() {
                 // Merge the existing and incoming tasks by ID to avoid data loss
                 const mergedTasks = [...existing];
 
-                incoming.forEach((incomingTask) => {
+                incoming.forEach((incomingTask: { __ref: any }) => {
                   // Check if the task already exists in the merged list
                   const existingTaskIndex = mergedTasks.findIndex(
                     (task) => task.__ref === incomingTask.__ref

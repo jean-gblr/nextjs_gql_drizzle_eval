@@ -1,6 +1,5 @@
 import "dotenv/config";
 import { drizzle } from "drizzle-orm/node-postgres";
-import { eq } from "drizzle-orm";
 import pkg from "pg";
 import * as dbSchema from "./schema.js";
 import { generateFakeData } from "./fake.js";

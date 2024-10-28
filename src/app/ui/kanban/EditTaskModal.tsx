@@ -9,34 +9,21 @@ import {
 import { FC, useState } from "react";
 import { Task } from "@/server/database/schema";
 import { Modal, Label, TextInput, Textarea, Button } from "flowbite-react";
-import { gql, useMutation } from "@apollo/client";
-import { Board, tasksQuery } from "./content";
-import { desc } from "drizzle-orm";
+import { useMutation } from "@apollo/client";
+import { UPDATE_TASK_MUTATION, TASKS_QUERY } from "@/app/data/queries";
 
-const UPDATE_TASK_MUTATION = gql`
-  mutation UpdateTasks($set: TasksUpdateInput!, $where: TasksFilters) {
-    updateTasks(set: $set, where: $where) {
-      id
-      title
-      description
-      status
-      createdAt
-      updatedAt
-    }
-  }
-`;
+interface EditTaskModalProps {
+  task: Task;
+}
 
-export const EditTaskModal: FC<Task> = function ({ task }) {
+export const EditTaskModal: FC<EditTaskModalProps> = function ({ task }) {
   const [isOpen, setOpen] = useState(false);
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description);
   const [selectedStatus, setSelectedStatus] = useState(task.status);
-  const [updateTask, { data, loading, error }] = useMutation(
-    UPDATE_TASK_MUTATION,
-    {
-      refetchQueries: [{ query: tasksQuery }],
-    }
-  );
+  const [updateTask, { error }] = useMutation(UPDATE_TASK_MUTATION, {
+    refetchQueries: [{ query: TASKS_QUERY }],
+  });
 
   const handleSubmit = async () => {
     try {
@@ -64,8 +51,6 @@ export const EditTaskModal: FC<Task> = function ({ task }) {
     }
   };
 
-  const isAddButtonDisabled = !title || !description;
-
   if (error) return `Update error! ${error.message}`;
 
   return (
@@ -74,7 +59,7 @@ export const EditTaskModal: FC<Task> = function ({ task }) {
         onClick={() => setOpen(true)}
         className="rounded-lg p-2 text-sm text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-700"
       >
-        <span className="sr-only">Edit card</span>
+        <span className="sr-only">Edit Task</span>
         <HiPencilAlt className="h-5 w-5" />
       </button>
       <Modal onClose={() => setOpen(false)} show={isOpen}>
@@ -90,12 +75,6 @@ export const EditTaskModal: FC<Task> = function ({ task }) {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
               />
-            </div>
-          </div>
-          <div className="mb-5 flex flex-col items-start justify-center space-y-3">
-            <div className="text-sm text-gray-500 dark:text-gray-400">
-              Created at&nbsp;
-              {task.createdAt}
             </div>
           </div>
           <div className="mb-2 inline-flex items-center text-center text-lg font-semibold text-gray-900 dark:text-white">
@@ -149,10 +128,7 @@ export const EditTaskModal: FC<Task> = function ({ task }) {
               </div>
             </Button>
             <Button color="gray" onClick={() => setOpen(false)}>
-              <div className="flex items-center gap-x-2">
-                <HiDocumentRemove className="h-5 w-5" />
-                Delete
-              </div>
+              <div className="flex items-center gap-x-2">Cancel</div>
             </Button>
           </div>
         </Modal.Footer>

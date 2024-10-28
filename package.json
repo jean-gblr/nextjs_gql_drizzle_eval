@@ -6,11 +6,11 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start",
+    "start": "pnpm build && next start",
     "lint": "next lint",
     "type-check": "tsc",
     "build:graphql": "rm -rf dist && tsc -p tsconfig.server.json",
-    "start:graphql": "node dist/graphql/index.js"
+    "start:graphql": "pnpm build:graphql && node dist/graphql/index.js"
   },
   "dependencies": {
     "@apollo/client": "^3.11.8",
