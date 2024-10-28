@@ -89,3 +89,5 @@ You can run the Next.js app with the following command:
 ```bash
 pnpm start
 ```
+
+Finally you can access the app on your browser at http://localhost:3000/
