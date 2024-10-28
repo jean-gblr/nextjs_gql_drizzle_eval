@@ -9,7 +9,7 @@ import { Spinner } from "flowbite-react";
 import { useQuery } from "@apollo/client";
 import { EditTaskModal } from "./EditTaskModal";
 import { DeleteModal } from "./DeleteModal";
-import { TASKS_QUERY } from "@/app/data/queries";
+import { BOARDS_QUERY } from "@/app/data/queries";
 
 export interface Board {
   id: number;
@@ -18,7 +18,7 @@ export interface Board {
 }
 
 const KanbanPageContent: FC = function () {
-  const { loading, data } = useQuery(TASKS_QUERY, {
+  const { loading, data } = useQuery(BOARDS_QUERY, {
     fetchPolicy: "cache-and-network",
   });
 

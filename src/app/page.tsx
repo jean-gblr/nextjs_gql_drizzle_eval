@@ -1,4 +1,8 @@
+"use client";
+
+import { Carousel } from "flowbite-react";
 import Link from "next/link";
+import { TaskCarousel } from "./ui/TaskCarousel";
 
 export default function Page() {
   return (
@@ -11,16 +15,15 @@ export default function Page() {
           View
         </h1>
         <p className="text-lg font-normal text-gray-500 lg:text-xl dark:text-gray-400">
-          We will have a caroussel auto playing with the tasks and the user can
-          click on the task to see the details. (This is a bonus, for now please
-          click{" "}
+          Behold the carousel of tasks ! (If you want to create, edit or delete
+          tasks, please click{" "}
           <Link className="text-blue-500" href={"/kanban"}>
             here
           </Link>
           )
         </p>
+        <TaskCarousel />
       </main>
-      <footer></footer>
     </div>
   );
 }

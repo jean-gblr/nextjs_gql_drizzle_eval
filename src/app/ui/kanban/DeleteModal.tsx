@@ -1,4 +1,5 @@
-import { REMOVE_TASK_MUTATION, TASKS_QUERY } from "@/app/data/queries";
+"use client";
+import { REMOVE_TASK_MUTATION, BOARDS_QUERY } from "@/app/data/queries";
 import { Task } from "@/server/database/schema";
 import { useMutation } from "@apollo/client";
 import { Button, Modal } from "flowbite-react";
@@ -12,7 +13,7 @@ interface DeleteModalProps {
 export const DeleteModal: FC<DeleteModalProps> = function ({ task }) {
   const [openDeleteModal, setOpenDeleteModal] = useState(false);
   const [removeTask] = useMutation(REMOVE_TASK_MUTATION, {
-    refetchQueries: [{ query: TASKS_QUERY }],
+    refetchQueries: [{ query: BOARDS_QUERY }],
   });
 
   const handleDeleteTask = async (task: Task) => {

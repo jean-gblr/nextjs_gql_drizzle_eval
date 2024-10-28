@@ -13,7 +13,7 @@ export const ADD_TASK_MUTATION = gql`
   }
 `;
 
-export const TASKS_QUERY = gql`
+export const BOARDS_QUERY = gql`
   query {
     boards {
       id
@@ -26,6 +26,19 @@ export const TASKS_QUERY = gql`
         createdAt
         updatedAt
       }
+    }
+  }
+`;
+
+export const TASKS_QUERY = gql`
+  query {
+    tasks {
+      id
+      title
+      description
+      status
+      createdAt
+      updatedAt
     }
   }
 `;

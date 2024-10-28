@@ -10,7 +10,7 @@ import { FC, useState } from "react";
 import { Task } from "@/server/database/schema";
 import { Modal, Label, TextInput, Textarea, Button } from "flowbite-react";
 import { useMutation } from "@apollo/client";
-import { UPDATE_TASK_MUTATION, TASKS_QUERY } from "@/app/data/queries";
+import { UPDATE_TASK_MUTATION, BOARDS_QUERY } from "@/app/data/queries";
 
 interface EditTaskModalProps {
   task: Task;
@@ -22,7 +22,7 @@ export const EditTaskModal: FC<EditTaskModalProps> = function ({ task }) {
   const [description, setDescription] = useState(task.description);
   const [selectedStatus, setSelectedStatus] = useState(task.status);
   const [updateTask, { error }] = useMutation(UPDATE_TASK_MUTATION, {
-    refetchQueries: [{ query: TASKS_QUERY }],
+    refetchQueries: [{ query: BOARDS_QUERY }],
   });
 
   const handleSubmit = async () => {

@@ -6,7 +6,7 @@ import { FC, useState } from "react";
 import { HiPlus } from "react-icons/hi";
 import { Board } from "./content";
 import { Task } from "@/server/database/schema";
-import { ADD_TASK_MUTATION, TASKS_QUERY } from "@/app/data/queries";
+import { ADD_TASK_MUTATION, BOARDS_QUERY } from "@/app/data/queries";
 
 interface AddAnotherTaskModalProps {
   status?: string;
@@ -34,7 +34,7 @@ export const AddAnotherTaskModal: FC<AddAnotherTaskModalProps> = function ({
     update: (cache, { data: { insertIntoTasks } }) => {
       // Read the existing boards from the cache
       const existingData: { boards: Board[] } = cache.readQuery({
-        query: TASKS_QUERY,
+        query: BOARDS_QUERY,
       }) || { boards: [] };
 
       // Fallback to empty arrays if data is missing
@@ -54,7 +54,6 @@ export const AddAnotherTaskModal: FC<AddAnotherTaskModalProps> = function ({
         } else {
           return "wrong";
         }
-        // return board ? board.id : null; // Return null if no board with that status is found
       };
 
       // Group tasks by their status to create the updated boards
@@ -68,7 +67,7 @@ export const AddAnotherTaskModal: FC<AddAnotherTaskModalProps> = function ({
 
       // Write the updated boards back to the cache
       cache.writeQuery({
-        query: TASKS_QUERY,
+        query: BOARDS_QUERY,
         data: {
           boards: updatedBoards,
         },

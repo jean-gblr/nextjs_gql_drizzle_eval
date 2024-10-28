@@ -19,7 +19,7 @@ export default function RootLayout({
       <head>
         <ThemeModeScript />
       </head>
-      <body className="dark:bg-gray-900">
+      <body className="dark:bg-gray-900 max-w-full max-h-full">
         <NavbarComponent />
         <div className="p-4">
           <ApolloWrapper>{children}</ApolloWrapper>
